@@ -1,0 +1,6 @@
+# Ignore folders
+extracted/
+recordings/
+
+# Ignore logs.txt files
+logs.txt
