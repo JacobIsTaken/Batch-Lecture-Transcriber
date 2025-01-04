@@ -1,14 +1,16 @@
-import whisper
-import subprocess
 import os
+import shutil
+import subprocess
 import time
 from datetime import datetime, timedelta
+import whisper
 
 # Variables
 recordings_folder = "recordings"    # Enter the folder containing the .mp4 files you want to transcribe
 extracted_folder = "extracted"      # Enter the folder where you want to save the transcriptions
-whisper_model = "small"             # Enter the model you want to use, use "small", "medium", "turbo" or "large" for better accuracy
+whisper_model = "turbo"             # Enter the model you want to use, use "small", "medium", "turbo" or "large" for better accuracy
 whisper_language = "pl"             # Enter the language code for the model, use "en-US" for English (United States) or "pl" for Polish
+
 
 # Change the working directory to the script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -33,9 +35,20 @@ if not os.listdir(recordings_folder):
     print(f"No files found in the '{recordings_folder}' folder. Please add your files and run the script again.")
     time.sleep(5)
     exit(1)
+    
+# Check if ffmpeg is installed
+if not shutil.which("ffmpeg"):
+    print("ffmpeg is not installed. Please install ffmpeg and try again.")
+    time.sleep(5)
+    exit(1)
 
 # Load the model
-model = whisper.load_model(whisper_model)
+try:
+    model = whisper.load_model(whisper_model)
+except Exception as e:
+    print(f"Failed to load model: {e}")
+    time.sleep(5)
+    exit(1)
 print("Loaded model:", whisper_model)
 
 # Process each .mp4 file in the recordings folder
@@ -55,7 +68,7 @@ for file_name in os.listdir(recordings_folder):
             "-ac", "1",                                         # Set the number of audio channels to 1 (mono)
             "-af", "loudnorm,highpass=f=200,lowpass=f=3000",    # Apply audio filters
             audio_file_path                                     # Output audio file path
-        ])
+        ], check=True)
 
         # Transcribe the audio file
         result = model.transcribe(audio_file_path, language=whisper_language)

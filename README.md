@@ -22,6 +22,8 @@ Przed uruchomieniem skryptu upewnij się, że masz zainstalowane:
 4. **FFmpeg**  
    Pobierz i zainstaluj FFmpeg ze strony [ffmpeg.org](https://ffmpeg.org/download.html). Upewnij się, że jest dostępny w PATH.
 
+   [Polecam ten poradnik aby zainstalować ffmpeg](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
+
 ---
 
 ## Struktura Folderów
