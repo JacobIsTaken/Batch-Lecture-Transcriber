@@ -6,12 +6,12 @@ from datetime import datetime, timedelta
 import whisper
 
 # Variables
-recordings_folder = "recordings"    # Enter the folder containing the .mp4 files you want to transcribe
-extracted_folder = "extracted"      # Enter the folder where you want to save the transcriptions
-whisper_model = "large"             # Enter the model you want to use, use "small", "medium", "turbo" or "large" for better accuracy
+recordings_folder = "recordings"    # Enter the folder containing the .mp4 files you want to transcribe, if doesnt exit it will be created automatically
+extracted_folder = "extracted"      # Enter the folder where you want to save the transcriptions, if doesnt exit it will be created automatically
+whisper_model = "turbo"             # Default 'Turbo', enter the model you want to use, use "small", "medium", "turbo" or "large" for better accuracy
 whisper_language = "pl"             # Enter the language code for the model, use "en-US" for English (United States) or "pl" for Polish
-media_extension = "all"             # Enter what type of media do you want to convert, for example: "mp4", "webm" or enter "all" for all files (make sure the files can be transcribed)
-delete_temp_mp3 = False             # Default 'True', choose whether to keep temporary mp3 file from ffmpeg
+media_extension = "all"             # Default 'all', enter what type of media do you want to convert, for example: "mp4", "webm" or enter "all" for all files (make sure the files can be transcribed)
+delete_temp_mp3 = True              # Default 'True', choose whether to keep temporary mp3 file from ffmpeg
 
 # Change the working directory to the script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
