@@ -8,9 +8,10 @@ import whisper
 # Variables
 recordings_folder = "recordings"    # Enter the folder containing the .mp4 files you want to transcribe
 extracted_folder = "extracted"      # Enter the folder where you want to save the transcriptions
-whisper_model = "turbo"             # Enter the model you want to use, use "small", "medium", "turbo" or "large" for better accuracy
+whisper_model = "large"             # Enter the model you want to use, use "small", "medium", "turbo" or "large" for better accuracy
 whisper_language = "pl"             # Enter the language code for the model, use "en-US" for English (United States) or "pl" for Polish
-
+media_extension = "all"             # Enter what type of media do you want to convert, for example: "mp4", "webm" or enter "all" for all files (make sure the files can be transcribed)
+delete_temp_mp3 = False             # Default 'True', choose whether to keep temporary mp3 file from ffmpeg
 
 # Change the working directory to the script's directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,7 +27,7 @@ if not os.path.exists(extracted_folder):
 if not os.path.exists(recordings_folder):
     print(f"The folder '{recordings_folder}' does not exist. Creating it now...")
     os.makedirs(recordings_folder)
-    print(f"Please add your .mp4 files to the '{recordings_folder}' folder and run the script again.")
+    print(f"Please add your .{media_extension} files to the '{recordings_folder}' folder and run the script again.")
     time.sleep(10)
     exit(1)
 
@@ -51,13 +52,27 @@ except Exception as e:
     exit(1)
 print("Loaded model:", whisper_model)
 
+skip_if_all = media_extension == "all"
+
 # Process each .mp4 file in the recordings folder
 for file_name in os.listdir(recordings_folder):
-    if file_name.endswith(".mp4"):
+    if file_name.endswith(f".{media_extension}") or skip_if_all:
+        
+        # 'all' media exception
+        if skip_if_all:
+            extension = file_name.split('.')[-1].lower()
+        
+        # Checking if proper extension
+        if extension.isalnum():
+            media_extension = extension
+        else:
+            print(f"ERROR: Invalid extension for media file, only alphanumeric characters allowed")
+            break
+        
         print(f"Processing \"{file_name}\"...")
         start_time = time.time()
         input_file_path = os.path.join(recordings_folder, file_name)
-        audio_file_name = file_name.replace(".mp4", ".mp3")
+        audio_file_name = file_name.replace(f".{media_extension}", ".mp3")
         audio_file_path = os.path.join(recordings_folder, audio_file_name)
         
         # Convert the video to an audio file using ffmpeg
@@ -74,12 +89,13 @@ for file_name in os.listdir(recordings_folder):
         result = model.transcribe(audio_file_path, language=whisper_language)
         
         # Save the transcription to a file in the extracted folder
-        output_file_path = os.path.join(extracted_folder, f"{file_name.replace('.mp4', '')}_{whisper_model}.txt")
+        output_file_path = os.path.join(extracted_folder, f"{file_name.replace(f'.{media_extension}', '')}_{whisper_model}.txt")
         with open(output_file_path, "w", encoding="utf-8") as f:
             f.write(result["text"])
         
         # Delete the audio file after transcription
-        os.remove(audio_file_path)
+        if delete_temp_mp3:
+            os.remove(audio_file_path)
         
         end_time = time.time()
         duration = end_time - start_time
@@ -90,6 +106,6 @@ for file_name in os.listdir(recordings_folder):
         
         print(f"Transcription completed! Saved to \"{output_file_path}\"")
     else:
-        print(f"Skipping \"{file_name}\", not an .mp4 file")
+        print(f"Skipping \"{file_name}\", not an .{media_extension} file")
 else:
     print("All files processed!")
